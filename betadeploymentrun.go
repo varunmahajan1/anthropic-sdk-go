@@ -45,13 +45,16 @@ func (r *BetaDeploymentRunService) Get(ctx context.Context, deploymentRunID stri
 	for _, v := range query.Betas {
 		opts = append(opts, option.WithHeaderAdd("anthropic-beta", fmt.Sprintf("%v", v)))
 	}
+	if !param.IsOmitted(query.WorkspaceID) {
+		opts = append(opts, option.WithHeader("anthropic-workspace-id", fmt.Sprintf("%v", query.WorkspaceID.Value)))
+	}
 	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("anthropic-beta", "managed-agents-2026-04-01")}, opts...)
 	if deploymentRunID == "" {
 		err = errors.New("missing required deployment_run_id parameter")
 		return nil, err
 	}
-	path := fmt.Sprintf("v1/deployment_runs/%s?beta=true", deploymentRunID)
+	path := requestconfig.FormatPath("v1/deployment_runs/%s?beta=true", deploymentRunID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
 	return res, err
 }
@@ -61,6 +64,9 @@ func (r *BetaDeploymentRunService) List(ctx context.Context, params BetaDeployme
 	var raw *http.Response
 	for _, v := range params.Betas {
 		opts = append(opts, option.WithHeaderAdd("anthropic-beta", fmt.Sprintf("%v", v)))
+	}
+	if !param.IsOmitted(params.WorkspaceID) {
+		opts = append(opts, option.WithHeader("anthropic-workspace-id", fmt.Sprintf("%v", params.WorkspaceID.Value)))
 	}
 	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("anthropic-beta", "managed-agents-2026-04-01"), option.WithResponseInto(&raw)}, opts...)
@@ -123,8 +129,8 @@ type BetaManagedAgentsDeploymentRun struct {
 	// Why the run failed to create a session. The type identifies the failure; message
 	// is human-readable detail.
 	Error BetaManagedAgentsDeploymentRunErrorUnion `json:"error" api:"required"`
-	// Populated on success. Null on creation failure. Exactly one of session_id or
-	// error is non-null.
+	// Populated on success. Null on creation failure. Exactly one of `session_id` or
+	// `error` is non-null.
 	SessionID string `json:"session_id" api:"required"`
 	// Describes what triggered a deployment run, with trigger-specific metadata.
 	TriggerContext BetaManagedAgentsTriggerContextUnion `json:"trigger_context" api:"required"`
@@ -905,6 +911,7 @@ const (
 )
 
 type BetaDeploymentRunGetParams struct {
+	WorkspaceID param.Opt[string] `header:"anthropic-workspace-id,omitzero" json:"-"`
 	// Optional header to specify the beta version(s) you want to use.
 	Betas []AnthropicBeta `header:"anthropic-beta,omitzero" json:"-"`
 	paramObj
@@ -920,17 +927,18 @@ type BetaDeploymentRunListParams struct {
 	// Return runs created at or before this time (inclusive).
 	CreatedAtLte param.Opt[time.Time] `query:"created_at[lte],omitzero" format:"date-time" json:"-"`
 	// Filter to a specific deployment. Omit to list across all deployments in the
-	// workspace. Filtering by a non-existent deployment_id returns 200 with empty
+	// workspace. Filtering by a non-existent `deployment_id` returns 200 with empty
 	// data.
 	DeploymentID param.Opt[string] `query:"deployment_id,omitzero" json:"-"`
-	// Filter: true for runs with non-null error, false for runs with non-null
-	// session_id. Omit for all.
+	// Filter: true for runs with non-null `error`, false for runs with non-null
+	// `session_id`. Omit for all.
 	HasError param.Opt[bool] `query:"has_error,omitzero" json:"-"`
 	// Maximum results per page. Default 20, maximum 1000.
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
-	// Opaque pagination cursor. Pass next_page from the previous response. Invalid or
-	// expired cursors return 400.
-	Page param.Opt[string] `query:"page,omitzero" json:"-"`
+	// Opaque pagination cursor. Pass `next_page` from the previous response. Invalid
+	// or expired cursors return 400.
+	Page        param.Opt[string] `query:"page,omitzero" json:"-"`
+	WorkspaceID param.Opt[string] `header:"anthropic-workspace-id,omitzero" json:"-"`
 	// Filter runs by what triggered them. Omit to return all runs.
 	//
 	// Any of "schedule", "manual".

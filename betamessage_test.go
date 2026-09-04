@@ -48,7 +48,11 @@ func TestBetaMessageNewWithOptionalParams(t *testing.T) {
 					}},
 				},
 			}},
-			Role: anthropic.BetaMessageParamRoleUser,
+			Role:    anthropic.BetaMessageParamRoleUser,
+			ClearAt: anthropic.BetaMessageParamClearAtNextUserMessage,
+			OutputConfig: anthropic.BetaSystemMessageOutputConfigParam{
+				Effort: anthropic.BetaSystemMessageOutputConfigEffortLow,
+			},
 		}},
 		Model: anthropic.ModelClaudeOpus5,
 		CacheControl: anthropic.BetaCacheControlEphemeralParam{
@@ -145,6 +149,9 @@ func TestBetaMessageNewWithOptionalParams(t *testing.T) {
 		Temperature: anthropic.Float(1),
 		Thinking: anthropic.BetaThinkingConfigParamUnion{
 			OfAdaptive: &anthropic.BetaThinkingConfigAdaptiveParam{
+				BlockBinding: anthropic.BetaThinkingBlockBindingParam{
+					PrefixMismatchBehavior: anthropic.BetaThinkingPrefixMismatchBehaviorError,
+				},
 				Display: anthropic.BetaThinkingConfigAdaptiveDisplaySummarized,
 			},
 		},
@@ -181,6 +188,7 @@ func TestBetaMessageNewWithOptionalParams(t *testing.T) {
 		TopP:          anthropic.Float(0.7),
 		Betas:         []anthropic.AnthropicBeta{anthropic.AnthropicBetaMessageBatches2024_09_24},
 		UserProfileID: anthropic.String("anthropic-user-profile-id"),
+		WorkspaceID:   anthropic.String("wrkspc_011CZkZaBF1tNoB5wlCeusgy"),
 	})
 	if err != nil {
 		var apierr *anthropic.Error
@@ -222,7 +230,11 @@ func TestBetaMessageCountTokensWithOptionalParams(t *testing.T) {
 					}},
 				},
 			}},
-			Role: anthropic.BetaMessageParamRoleUser,
+			Role:    anthropic.BetaMessageParamRoleUser,
+			ClearAt: anthropic.BetaMessageParamClearAtNextUserMessage,
+			OutputConfig: anthropic.BetaSystemMessageOutputConfigParam{
+				Effort: anthropic.BetaSystemMessageOutputConfigEffortLow,
+			},
 		}},
 		Model: anthropic.ModelClaudeOpus5,
 		CacheControl: anthropic.BetaCacheControlEphemeralParam{
@@ -295,6 +307,9 @@ func TestBetaMessageCountTokensWithOptionalParams(t *testing.T) {
 		},
 		Thinking: anthropic.BetaThinkingConfigParamUnion{
 			OfAdaptive: &anthropic.BetaThinkingConfigAdaptiveParam{
+				BlockBinding: anthropic.BetaThinkingBlockBindingParam{
+					PrefixMismatchBehavior: anthropic.BetaThinkingPrefixMismatchBehaviorError,
+				},
 				Display: anthropic.BetaThinkingConfigAdaptiveDisplaySummarized,
 			},
 		},
@@ -329,6 +344,7 @@ func TestBetaMessageCountTokensWithOptionalParams(t *testing.T) {
 		}},
 		Betas:         []anthropic.AnthropicBeta{anthropic.AnthropicBetaMessageBatches2024_09_24},
 		UserProfileID: anthropic.String("anthropic-user-profile-id"),
+		WorkspaceID:   anthropic.String("wrkspc_011CZkZaBF1tNoB5wlCeusgy"),
 	})
 	if err != nil {
 		var apierr *anthropic.Error

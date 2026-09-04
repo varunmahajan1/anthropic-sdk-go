@@ -13,7 +13,7 @@ import (
 	"github.com/anthropics/anthropic-sdk-go/option"
 )
 
-func TestModelGetWithOptionalParams(t *testing.T) {
+func TestBetaOrganizationComplianceSettingGet(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -25,14 +25,7 @@ func TestModelGetWithOptionalParams(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("my-anthropic-api-key"),
 	)
-	_, err := client.Models.Get(
-		context.TODO(),
-		"model_id",
-		anthropic.ModelGetParams{
-			Betas:       []anthropic.AnthropicBeta{anthropic.AnthropicBetaMessageBatches2024_09_24},
-			WorkspaceID: anthropic.String("wrkspc_011CZkZaBF1tNoB5wlCeusgy"),
-		},
-	)
+	_, err := client.Beta.Organization.ComplianceSettings.Get(context.TODO())
 	if err != nil {
 		var apierr *anthropic.Error
 		if errors.As(err, &apierr) {
@@ -42,7 +35,7 @@ func TestModelGetWithOptionalParams(t *testing.T) {
 	}
 }
 
-func TestModelListWithOptionalParams(t *testing.T) {
+func TestBetaOrganizationComplianceSettingUpdate(t *testing.T) {
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -54,12 +47,10 @@ func TestModelListWithOptionalParams(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("my-anthropic-api-key"),
 	)
-	_, err := client.Models.List(context.TODO(), anthropic.ModelListParams{
-		AfterID:     anthropic.String("after_id"),
-		BeforeID:    anthropic.String("before_id"),
-		Limit:       anthropic.Int(1),
-		Betas:       []anthropic.AnthropicBeta{anthropic.AnthropicBetaMessageBatches2024_09_24},
-		WorkspaceID: anthropic.String("wrkspc_011CZkZaBF1tNoB5wlCeusgy"),
+	_, err := client.Beta.Organization.ComplianceSettings.Update(context.TODO(), anthropic.BetaOrganizationComplianceSettingUpdateParams{
+		State: anthropic.BetaOrganizationComplianceSettingUpdateParamsStateUnion{
+			OfEnabled: &anthropic.BetaComplianceSettingsStateEnabledParam{},
+		},
 	})
 	if err != nil {
 		var apierr *anthropic.Error

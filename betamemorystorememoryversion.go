@@ -46,6 +46,9 @@ func (r *BetaMemoryStoreMemoryVersionService) Get(ctx context.Context, memoryVer
 	for _, v := range params.Betas {
 		opts = append(opts, option.WithHeaderAdd("anthropic-beta", fmt.Sprintf("%v", v)))
 	}
+	if !param.IsOmitted(params.WorkspaceID) {
+		opts = append(opts, option.WithHeader("anthropic-workspace-id", fmt.Sprintf("%v", params.WorkspaceID.Value)))
+	}
 	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("anthropic-beta", "agent-memory-2026-07-22")}, opts...)
 	if params.MemoryStoreID == "" {
@@ -56,7 +59,7 @@ func (r *BetaMemoryStoreMemoryVersionService) Get(ctx context.Context, memoryVer
 		err = errors.New("missing required memory_version_id parameter")
 		return nil, err
 	}
-	path := fmt.Sprintf("v1/memory_stores/%s/memory_versions/%s?beta=true", params.MemoryStoreID, memoryVersionID)
+	path := requestconfig.FormatPath("v1/memory_stores/%s/memory_versions/%s?beta=true", params.MemoryStoreID, memoryVersionID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, params, &res, opts...)
 	return res, err
 }
@@ -67,13 +70,16 @@ func (r *BetaMemoryStoreMemoryVersionService) List(ctx context.Context, memorySt
 	for _, v := range params.Betas {
 		opts = append(opts, option.WithHeaderAdd("anthropic-beta", fmt.Sprintf("%v", v)))
 	}
+	if !param.IsOmitted(params.WorkspaceID) {
+		opts = append(opts, option.WithHeader("anthropic-workspace-id", fmt.Sprintf("%v", params.WorkspaceID.Value)))
+	}
 	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("anthropic-beta", "agent-memory-2026-07-22"), option.WithResponseInto(&raw)}, opts...)
 	if memoryStoreID == "" {
 		err = errors.New("missing required memory_store_id parameter")
 		return nil, err
 	}
-	path := fmt.Sprintf("v1/memory_stores/%s/memory_versions?beta=true", memoryStoreID)
+	path := requestconfig.FormatPath("v1/memory_stores/%s/memory_versions?beta=true", memoryStoreID)
 	cfg, err := requestconfig.NewRequestConfig(ctx, http.MethodGet, path, params, &res, opts...)
 	if err != nil {
 		return nil, err
@@ -96,6 +102,9 @@ func (r *BetaMemoryStoreMemoryVersionService) Redact(ctx context.Context, memory
 	for _, v := range params.Betas {
 		opts = append(opts, option.WithHeaderAdd("anthropic-beta", fmt.Sprintf("%v", v)))
 	}
+	if !param.IsOmitted(params.WorkspaceID) {
+		opts = append(opts, option.WithHeader("anthropic-workspace-id", fmt.Sprintf("%v", params.WorkspaceID.Value)))
+	}
 	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("anthropic-beta", "agent-memory-2026-07-22")}, opts...)
 	if params.MemoryStoreID == "" {
@@ -106,7 +115,7 @@ func (r *BetaMemoryStoreMemoryVersionService) Redact(ctx context.Context, memory
 		err = errors.New("missing required memory_version_id parameter")
 		return nil, err
 	}
-	path := fmt.Sprintf("v1/memory_stores/%s/memory_versions/%s/redact?beta=true", params.MemoryStoreID, memoryVersionID)
+	path := requestconfig.FormatPath("v1/memory_stores/%s/memory_versions/%s/redact?beta=true", params.MemoryStoreID, memoryVersionID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, nil, &res, opts...)
 	return res, err
 }
@@ -273,7 +282,7 @@ type BetaManagedAgentsMemoryVersion struct {
 	// the `memory_version` row. The API key that created a session is not recorded on
 	// agent writes; attribution answers who made the write, not who is ultimately
 	// responsible. Look up session provenance separately via the
-	// [Sessions API](/en/api/sessions-retrieve).
+	// [Sessions API](/en/api/beta/sessions/retrieve).
 	CreatedBy BetaManagedAgentsActorUnion `json:"created_by"`
 	// The memory's path at the time of this write. `null` if and only if `redacted_at`
 	// is set.
@@ -284,7 +293,7 @@ type BetaManagedAgentsMemoryVersion struct {
 	// the `memory_version` row. The API key that created a session is not recorded on
 	// agent writes; attribution answers who made the write, not who is ultimately
 	// responsible. Look up session provenance separately via the
-	// [Sessions API](/en/api/sessions-retrieve).
+	// [Sessions API](/en/api/beta/sessions/retrieve).
 	RedactedBy BetaManagedAgentsActorUnion `json:"redacted_by"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
@@ -353,7 +362,7 @@ func (r *BetaManagedAgentsServiceAccountActor) UnmarshalJSON(data []byte) error 
 // filesystem at `/mnt/memory/`.
 type BetaManagedAgentsSessionActor struct {
 	// ID of the session that performed the write (a `sesn_...` value). Look up the
-	// session via [Retrieve a session](/en/api/sessions-retrieve) for further
+	// session via [Retrieve a session](/en/api/beta/sessions/retrieve) for further
 	// provenance.
 	SessionID string `json:"session_id" api:"required"`
 	// Any of "session_actor".
@@ -407,7 +416,8 @@ const (
 )
 
 type BetaMemoryStoreMemoryVersionGetParams struct {
-	MemoryStoreID string `path:"memory_store_id" api:"required" json:"-"`
+	MemoryStoreID string            `path:"memory_store_id" api:"required" json:"-"`
+	WorkspaceID   param.Opt[string] `header:"anthropic-workspace-id,omitzero" json:"-"`
 	// Query parameter for view
 	//
 	// Any of "basic", "full".
@@ -442,7 +452,8 @@ type BetaMemoryStoreMemoryVersionListParams struct {
 	// Query parameter for service_account_id
 	ServiceAccountID param.Opt[string] `query:"service_account_id,omitzero" json:"-"`
 	// Query parameter for session_id
-	SessionID param.Opt[string] `query:"session_id,omitzero" json:"-"`
+	SessionID   param.Opt[string] `query:"session_id,omitzero" json:"-"`
+	WorkspaceID param.Opt[string] `header:"anthropic-workspace-id,omitzero" json:"-"`
 	// Query parameter for operation
 	//
 	// Any of "created", "modified", "deleted".
@@ -466,7 +477,8 @@ func (r BetaMemoryStoreMemoryVersionListParams) URLQuery() (v url.Values, err er
 }
 
 type BetaMemoryStoreMemoryVersionRedactParams struct {
-	MemoryStoreID string `path:"memory_store_id" api:"required" json:"-"`
+	MemoryStoreID string            `path:"memory_store_id" api:"required" json:"-"`
+	WorkspaceID   param.Opt[string] `header:"anthropic-workspace-id,omitzero" json:"-"`
 	// Optional header to specify the beta version(s) you want to use.
 	Betas []AnthropicBeta `header:"anthropic-beta,omitzero" json:"-"`
 	paramObj

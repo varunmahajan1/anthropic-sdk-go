@@ -49,6 +49,9 @@ func (r *BetaAgentService) New(ctx context.Context, params BetaAgentNewParams, o
 	for _, v := range params.Betas {
 		opts = append(opts, option.WithHeaderAdd("anthropic-beta", fmt.Sprintf("%v", v)))
 	}
+	if !param.IsOmitted(params.WorkspaceID) {
+		opts = append(opts, option.WithHeader("anthropic-workspace-id", fmt.Sprintf("%v", params.WorkspaceID.Value)))
+	}
 	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("anthropic-beta", "managed-agents-2026-04-01")}, opts...)
 	path := "v1/agents?beta=true"
@@ -61,13 +64,16 @@ func (r *BetaAgentService) Get(ctx context.Context, agentID string, params BetaA
 	for _, v := range params.Betas {
 		opts = append(opts, option.WithHeaderAdd("anthropic-beta", fmt.Sprintf("%v", v)))
 	}
+	if !param.IsOmitted(params.WorkspaceID) {
+		opts = append(opts, option.WithHeader("anthropic-workspace-id", fmt.Sprintf("%v", params.WorkspaceID.Value)))
+	}
 	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("anthropic-beta", "managed-agents-2026-04-01")}, opts...)
 	if agentID == "" {
 		err = errors.New("missing required agent_id parameter")
 		return nil, err
 	}
-	path := fmt.Sprintf("v1/agents/%s?beta=true", agentID)
+	path := requestconfig.FormatPath("v1/agents/%s?beta=true", agentID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, params, &res, opts...)
 	return res, err
 }
@@ -77,13 +83,16 @@ func (r *BetaAgentService) Update(ctx context.Context, agentID string, params Be
 	for _, v := range params.Betas {
 		opts = append(opts, option.WithHeaderAdd("anthropic-beta", fmt.Sprintf("%v", v)))
 	}
+	if !param.IsOmitted(params.WorkspaceID) {
+		opts = append(opts, option.WithHeader("anthropic-workspace-id", fmt.Sprintf("%v", params.WorkspaceID.Value)))
+	}
 	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("anthropic-beta", "managed-agents-2026-04-01")}, opts...)
 	if agentID == "" {
 		err = errors.New("missing required agent_id parameter")
 		return nil, err
 	}
-	path := fmt.Sprintf("v1/agents/%s?beta=true", agentID)
+	path := requestconfig.FormatPath("v1/agents/%s?beta=true", agentID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
 	return res, err
 }
@@ -93,6 +102,9 @@ func (r *BetaAgentService) List(ctx context.Context, params BetaAgentListParams,
 	var raw *http.Response
 	for _, v := range params.Betas {
 		opts = append(opts, option.WithHeaderAdd("anthropic-beta", fmt.Sprintf("%v", v)))
+	}
+	if !param.IsOmitted(params.WorkspaceID) {
+		opts = append(opts, option.WithHeader("anthropic-workspace-id", fmt.Sprintf("%v", params.WorkspaceID.Value)))
 	}
 	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("anthropic-beta", "managed-agents-2026-04-01"), option.WithResponseInto(&raw)}, opts...)
@@ -119,13 +131,16 @@ func (r *BetaAgentService) Archive(ctx context.Context, agentID string, body Bet
 	for _, v := range body.Betas {
 		opts = append(opts, option.WithHeaderAdd("anthropic-beta", fmt.Sprintf("%v", v)))
 	}
+	if !param.IsOmitted(body.WorkspaceID) {
+		opts = append(opts, option.WithHeader("anthropic-workspace-id", fmt.Sprintf("%v", body.WorkspaceID.Value)))
+	}
 	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("anthropic-beta", "managed-agents-2026-04-01")}, opts...)
 	if agentID == "" {
 		err = errors.New("missing required agent_id parameter")
 		return nil, err
 	}
-	path := fmt.Sprintf("v1/agents/%s/archive?beta=true", agentID)
+	path := requestconfig.FormatPath("v1/agents/%s/archive?beta=true", agentID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, nil, &res, opts...)
 	return res, err
 }
@@ -2842,6 +2857,7 @@ const (
 type BetaManagedAgentsModel = string
 
 const (
+	BetaManagedAgentsModelClaudeFable5_1           BetaManagedAgentsModel = "claude-fable-5-1"
 	BetaManagedAgentsModelClaudeSonnet5            BetaManagedAgentsModel = "claude-sonnet-5"
 	BetaManagedAgentsModelClaudeFable5             BetaManagedAgentsModel = "claude-fable-5"
 	BetaManagedAgentsModelClaudeOpus5              BetaManagedAgentsModel = "claude-opus-5"
@@ -4283,7 +4299,8 @@ type BetaAgentNewParams struct {
 	// Description of what the agent does.
 	Description param.Opt[string] `json:"description,omitzero"`
 	// System prompt for the agent.
-	System param.Opt[string] `json:"system,omitzero"`
+	System      param.Opt[string] `json:"system,omitzero"`
+	WorkspaceID param.Opt[string] `header:"anthropic-workspace-id,omitzero" json:"-"`
 	// MCP servers this agent connects to. Maximum 20. Names must be unique within the
 	// array. Every server must be referenced by an `mcp_toolset` in `tools`;
 	// unreferenced servers are rejected. See the
@@ -4498,7 +4515,8 @@ func init() {
 type BetaAgentGetParams struct {
 	// Agent version. Omit for the most recent version. Must be at least 1 if
 	// specified.
-	Version param.Opt[int64] `query:"version,omitzero" json:"-"`
+	Version     param.Opt[int64]  `query:"version,omitzero" json:"-"`
+	WorkspaceID param.Opt[string] `header:"anthropic-workspace-id,omitzero" json:"-"`
 	// Optional header to specify the beta version(s) you want to use.
 	Betas []AnthropicBeta `header:"anthropic-beta,omitzero" json:"-"`
 	paramObj
@@ -4523,7 +4541,8 @@ type BetaAgentUpdateParams struct {
 	// value from a create or retrieve response. Must be at least 1 if specified. When
 	// supplied, the request fails if it does not match the server's current version;
 	// omit to apply the update unconditionally.
-	Version param.Opt[int64] `json:"version,omitzero"`
+	Version     param.Opt[int64]  `json:"version,omitzero"`
+	WorkspaceID param.Opt[string] `header:"anthropic-workspace-id,omitzero" json:"-"`
 	// MCP servers. Full replacement. Omit to preserve; send empty array or `null` to
 	// clear. Names must be unique. Maximum 20. Every server must be referenced by an
 	// `mcp_toolset` in the agent's resulting `tools`; unreferenced servers are
@@ -4753,7 +4772,8 @@ type BetaAgentListParams struct {
 	// Maximum results per page. Default 20, maximum 100.
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
 	// Opaque pagination cursor from a previous response.
-	Page param.Opt[string] `query:"page,omitzero" json:"-"`
+	Page        param.Opt[string] `query:"page,omitzero" json:"-"`
+	WorkspaceID param.Opt[string] `header:"anthropic-workspace-id,omitzero" json:"-"`
 	// Optional header to specify the beta version(s) you want to use.
 	Betas []AnthropicBeta `header:"anthropic-beta,omitzero" json:"-"`
 	paramObj
@@ -4768,6 +4788,7 @@ func (r BetaAgentListParams) URLQuery() (v url.Values, err error) {
 }
 
 type BetaAgentArchiveParams struct {
+	WorkspaceID param.Opt[string] `header:"anthropic-workspace-id,omitzero" json:"-"`
 	// Optional header to specify the beta version(s) you want to use.
 	Betas []AnthropicBeta `header:"anthropic-beta,omitzero" json:"-"`
 	paramObj

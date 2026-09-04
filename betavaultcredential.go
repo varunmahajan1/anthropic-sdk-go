@@ -45,13 +45,16 @@ func (r *BetaVaultCredentialService) New(ctx context.Context, vaultID string, pa
 	for _, v := range params.Betas {
 		opts = append(opts, option.WithHeaderAdd("anthropic-beta", fmt.Sprintf("%v", v)))
 	}
+	if !param.IsOmitted(params.WorkspaceID) {
+		opts = append(opts, option.WithHeader("anthropic-workspace-id", fmt.Sprintf("%v", params.WorkspaceID.Value)))
+	}
 	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("anthropic-beta", "managed-agents-2026-04-01")}, opts...)
 	if vaultID == "" {
 		err = errors.New("missing required vault_id parameter")
 		return nil, err
 	}
-	path := fmt.Sprintf("v1/vaults/%s/credentials?beta=true", vaultID)
+	path := requestconfig.FormatPath("v1/vaults/%s/credentials?beta=true", vaultID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
 	return res, err
 }
@@ -61,6 +64,9 @@ func (r *BetaVaultCredentialService) Get(ctx context.Context, credentialID strin
 	for _, v := range params.Betas {
 		opts = append(opts, option.WithHeaderAdd("anthropic-beta", fmt.Sprintf("%v", v)))
 	}
+	if !param.IsOmitted(params.WorkspaceID) {
+		opts = append(opts, option.WithHeader("anthropic-workspace-id", fmt.Sprintf("%v", params.WorkspaceID.Value)))
+	}
 	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("anthropic-beta", "managed-agents-2026-04-01")}, opts...)
 	if params.VaultID == "" {
@@ -71,7 +77,7 @@ func (r *BetaVaultCredentialService) Get(ctx context.Context, credentialID strin
 		err = errors.New("missing required credential_id parameter")
 		return nil, err
 	}
-	path := fmt.Sprintf("v1/vaults/%s/credentials/%s?beta=true", params.VaultID, credentialID)
+	path := requestconfig.FormatPath("v1/vaults/%s/credentials/%s?beta=true", params.VaultID, credentialID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
 	return res, err
 }
@@ -81,6 +87,9 @@ func (r *BetaVaultCredentialService) Update(ctx context.Context, credentialID st
 	for _, v := range params.Betas {
 		opts = append(opts, option.WithHeaderAdd("anthropic-beta", fmt.Sprintf("%v", v)))
 	}
+	if !param.IsOmitted(params.WorkspaceID) {
+		opts = append(opts, option.WithHeader("anthropic-workspace-id", fmt.Sprintf("%v", params.WorkspaceID.Value)))
+	}
 	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("anthropic-beta", "managed-agents-2026-04-01")}, opts...)
 	if params.VaultID == "" {
@@ -91,7 +100,7 @@ func (r *BetaVaultCredentialService) Update(ctx context.Context, credentialID st
 		err = errors.New("missing required credential_id parameter")
 		return nil, err
 	}
-	path := fmt.Sprintf("v1/vaults/%s/credentials/%s?beta=true", params.VaultID, credentialID)
+	path := requestconfig.FormatPath("v1/vaults/%s/credentials/%s?beta=true", params.VaultID, credentialID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
 	return res, err
 }
@@ -102,13 +111,16 @@ func (r *BetaVaultCredentialService) List(ctx context.Context, vaultID string, p
 	for _, v := range params.Betas {
 		opts = append(opts, option.WithHeaderAdd("anthropic-beta", fmt.Sprintf("%v", v)))
 	}
+	if !param.IsOmitted(params.WorkspaceID) {
+		opts = append(opts, option.WithHeader("anthropic-workspace-id", fmt.Sprintf("%v", params.WorkspaceID.Value)))
+	}
 	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("anthropic-beta", "managed-agents-2026-04-01"), option.WithResponseInto(&raw)}, opts...)
 	if vaultID == "" {
 		err = errors.New("missing required vault_id parameter")
 		return nil, err
 	}
-	path := fmt.Sprintf("v1/vaults/%s/credentials?beta=true", vaultID)
+	path := requestconfig.FormatPath("v1/vaults/%s/credentials?beta=true", vaultID)
 	cfg, err := requestconfig.NewRequestConfig(ctx, http.MethodGet, path, params, &res, opts...)
 	if err != nil {
 		return nil, err
@@ -131,6 +143,9 @@ func (r *BetaVaultCredentialService) Delete(ctx context.Context, credentialID st
 	for _, v := range params.Betas {
 		opts = append(opts, option.WithHeaderAdd("anthropic-beta", fmt.Sprintf("%v", v)))
 	}
+	if !param.IsOmitted(params.WorkspaceID) {
+		opts = append(opts, option.WithHeader("anthropic-workspace-id", fmt.Sprintf("%v", params.WorkspaceID.Value)))
+	}
 	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("anthropic-beta", "managed-agents-2026-04-01")}, opts...)
 	if params.VaultID == "" {
@@ -141,7 +156,7 @@ func (r *BetaVaultCredentialService) Delete(ctx context.Context, credentialID st
 		err = errors.New("missing required credential_id parameter")
 		return nil, err
 	}
-	path := fmt.Sprintf("v1/vaults/%s/credentials/%s?beta=true", params.VaultID, credentialID)
+	path := requestconfig.FormatPath("v1/vaults/%s/credentials/%s?beta=true", params.VaultID, credentialID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, nil, &res, opts...)
 	return res, err
 }
@@ -151,6 +166,9 @@ func (r *BetaVaultCredentialService) Archive(ctx context.Context, credentialID s
 	for _, v := range params.Betas {
 		opts = append(opts, option.WithHeaderAdd("anthropic-beta", fmt.Sprintf("%v", v)))
 	}
+	if !param.IsOmitted(params.WorkspaceID) {
+		opts = append(opts, option.WithHeader("anthropic-workspace-id", fmt.Sprintf("%v", params.WorkspaceID.Value)))
+	}
 	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("anthropic-beta", "managed-agents-2026-04-01")}, opts...)
 	if params.VaultID == "" {
@@ -161,7 +179,7 @@ func (r *BetaVaultCredentialService) Archive(ctx context.Context, credentialID s
 		err = errors.New("missing required credential_id parameter")
 		return nil, err
 	}
-	path := fmt.Sprintf("v1/vaults/%s/credentials/%s/archive?beta=true", params.VaultID, credentialID)
+	path := requestconfig.FormatPath("v1/vaults/%s/credentials/%s/archive?beta=true", params.VaultID, credentialID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, nil, &res, opts...)
 	return res, err
 }
@@ -171,6 +189,9 @@ func (r *BetaVaultCredentialService) MCPOAuthValidate(ctx context.Context, crede
 	for _, v := range params.Betas {
 		opts = append(opts, option.WithHeaderAdd("anthropic-beta", fmt.Sprintf("%v", v)))
 	}
+	if !param.IsOmitted(params.WorkspaceID) {
+		opts = append(opts, option.WithHeader("anthropic-workspace-id", fmt.Sprintf("%v", params.WorkspaceID.Value)))
+	}
 	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("anthropic-beta", "managed-agents-2026-04-01")}, opts...)
 	if params.VaultID == "" {
@@ -181,7 +202,7 @@ func (r *BetaVaultCredentialService) MCPOAuthValidate(ctx context.Context, crede
 		err = errors.New("missing required credential_id parameter")
 		return nil, err
 	}
-	path := fmt.Sprintf("v1/vaults/%s/credentials/%s/mcp_oauth_validate?beta=true", params.VaultID, credentialID)
+	path := requestconfig.FormatPath("v1/vaults/%s/credentials/%s/mcp_oauth_validate?beta=true", params.VaultID, credentialID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, nil, &res, opts...)
 	return res, err
 }
@@ -1524,6 +1545,7 @@ type BetaVaultCredentialNewParams struct {
 	Auth BetaVaultCredentialNewParamsAuthUnion `json:"auth,omitzero" api:"required"`
 	// Human-readable name for the credential. Up to 255 characters.
 	DisplayName param.Opt[string] `json:"display_name,omitzero"`
+	WorkspaceID param.Opt[string] `header:"anthropic-workspace-id,omitzero" json:"-"`
 	// Arbitrary key-value metadata to attach to the credential. Maximum 16 pairs, keys
 	// up to 64 chars, values up to 512 chars.
 	Metadata map[string]string `json:"metadata,omitzero"`
@@ -1664,7 +1686,8 @@ func init() {
 }
 
 type BetaVaultCredentialGetParams struct {
-	VaultID string `path:"vault_id" api:"required" json:"-"`
+	VaultID     string            `path:"vault_id" api:"required" json:"-"`
+	WorkspaceID param.Opt[string] `header:"anthropic-workspace-id,omitzero" json:"-"`
 	// Optional header to specify the beta version(s) you want to use.
 	Betas []AnthropicBeta `header:"anthropic-beta,omitzero" json:"-"`
 	paramObj
@@ -1674,6 +1697,7 @@ type BetaVaultCredentialUpdateParams struct {
 	VaultID string `path:"vault_id" api:"required" json:"-"`
 	// Updated human-readable name for the credential. 1-255 characters.
 	DisplayName param.Opt[string] `json:"display_name,omitzero"`
+	WorkspaceID param.Opt[string] `header:"anthropic-workspace-id,omitzero" json:"-"`
 	// Metadata patch. Set a key to a string to upsert it, or to null to delete it.
 	// Omitted keys are preserved.
 	Metadata map[string]string `json:"metadata,omitzero"`
@@ -1803,7 +1827,8 @@ type BetaVaultCredentialListParams struct {
 	// Maximum number of credentials to return per page. Defaults to 20, maximum 100.
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
 	// Opaque pagination token from a previous `list_credentials` response.
-	Page param.Opt[string] `query:"page,omitzero" json:"-"`
+	Page        param.Opt[string] `query:"page,omitzero" json:"-"`
+	WorkspaceID param.Opt[string] `header:"anthropic-workspace-id,omitzero" json:"-"`
 	// Optional header to specify the beta version(s) you want to use.
 	Betas []AnthropicBeta `header:"anthropic-beta,omitzero" json:"-"`
 	paramObj
@@ -1819,21 +1844,24 @@ func (r BetaVaultCredentialListParams) URLQuery() (v url.Values, err error) {
 }
 
 type BetaVaultCredentialDeleteParams struct {
-	VaultID string `path:"vault_id" api:"required" json:"-"`
+	VaultID     string            `path:"vault_id" api:"required" json:"-"`
+	WorkspaceID param.Opt[string] `header:"anthropic-workspace-id,omitzero" json:"-"`
 	// Optional header to specify the beta version(s) you want to use.
 	Betas []AnthropicBeta `header:"anthropic-beta,omitzero" json:"-"`
 	paramObj
 }
 
 type BetaVaultCredentialArchiveParams struct {
-	VaultID string `path:"vault_id" api:"required" json:"-"`
+	VaultID     string            `path:"vault_id" api:"required" json:"-"`
+	WorkspaceID param.Opt[string] `header:"anthropic-workspace-id,omitzero" json:"-"`
 	// Optional header to specify the beta version(s) you want to use.
 	Betas []AnthropicBeta `header:"anthropic-beta,omitzero" json:"-"`
 	paramObj
 }
 
 type BetaVaultCredentialMCPOAuthValidateParams struct {
-	VaultID string `path:"vault_id" api:"required" json:"-"`
+	VaultID     string            `path:"vault_id" api:"required" json:"-"`
+	WorkspaceID param.Opt[string] `header:"anthropic-workspace-id,omitzero" json:"-"`
 	// Optional header to specify the beta version(s) you want to use.
 	Betas []AnthropicBeta `header:"anthropic-beta,omitzero" json:"-"`
 	paramObj

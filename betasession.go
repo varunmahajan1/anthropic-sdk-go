@@ -52,6 +52,9 @@ func (r *BetaSessionService) New(ctx context.Context, params BetaSessionNewParam
 	for _, v := range params.Betas {
 		opts = append(opts, option.WithHeaderAdd("anthropic-beta", fmt.Sprintf("%v", v)))
 	}
+	if !param.IsOmitted(params.WorkspaceID) {
+		opts = append(opts, option.WithHeader("anthropic-workspace-id", fmt.Sprintf("%v", params.WorkspaceID.Value)))
+	}
 	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("anthropic-beta", "managed-agents-2026-04-01")}, opts...)
 	path := "v1/sessions?beta=true"
@@ -64,13 +67,16 @@ func (r *BetaSessionService) Get(ctx context.Context, sessionID string, query Be
 	for _, v := range query.Betas {
 		opts = append(opts, option.WithHeaderAdd("anthropic-beta", fmt.Sprintf("%v", v)))
 	}
+	if !param.IsOmitted(query.WorkspaceID) {
+		opts = append(opts, option.WithHeader("anthropic-workspace-id", fmt.Sprintf("%v", query.WorkspaceID.Value)))
+	}
 	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("anthropic-beta", "managed-agents-2026-04-01")}, opts...)
 	if sessionID == "" {
 		err = errors.New("missing required session_id parameter")
 		return nil, err
 	}
-	path := fmt.Sprintf("v1/sessions/%s?beta=true", sessionID)
+	path := requestconfig.FormatPath("v1/sessions/%s?beta=true", sessionID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
 	return res, err
 }
@@ -80,13 +86,16 @@ func (r *BetaSessionService) Update(ctx context.Context, sessionID string, param
 	for _, v := range params.Betas {
 		opts = append(opts, option.WithHeaderAdd("anthropic-beta", fmt.Sprintf("%v", v)))
 	}
+	if !param.IsOmitted(params.WorkspaceID) {
+		opts = append(opts, option.WithHeader("anthropic-workspace-id", fmt.Sprintf("%v", params.WorkspaceID.Value)))
+	}
 	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("anthropic-beta", "managed-agents-2026-04-01")}, opts...)
 	if sessionID == "" {
 		err = errors.New("missing required session_id parameter")
 		return nil, err
 	}
-	path := fmt.Sprintf("v1/sessions/%s?beta=true", sessionID)
+	path := requestconfig.FormatPath("v1/sessions/%s?beta=true", sessionID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
 	return res, err
 }
@@ -96,6 +105,9 @@ func (r *BetaSessionService) List(ctx context.Context, params BetaSessionListPar
 	var raw *http.Response
 	for _, v := range params.Betas {
 		opts = append(opts, option.WithHeaderAdd("anthropic-beta", fmt.Sprintf("%v", v)))
+	}
+	if !param.IsOmitted(params.WorkspaceID) {
+		opts = append(opts, option.WithHeader("anthropic-workspace-id", fmt.Sprintf("%v", params.WorkspaceID.Value)))
 	}
 	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("anthropic-beta", "managed-agents-2026-04-01"), option.WithResponseInto(&raw)}, opts...)
@@ -122,13 +134,16 @@ func (r *BetaSessionService) Delete(ctx context.Context, sessionID string, body 
 	for _, v := range body.Betas {
 		opts = append(opts, option.WithHeaderAdd("anthropic-beta", fmt.Sprintf("%v", v)))
 	}
+	if !param.IsOmitted(body.WorkspaceID) {
+		opts = append(opts, option.WithHeader("anthropic-workspace-id", fmt.Sprintf("%v", body.WorkspaceID.Value)))
+	}
 	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("anthropic-beta", "managed-agents-2026-04-01")}, opts...)
 	if sessionID == "" {
 		err = errors.New("missing required session_id parameter")
 		return nil, err
 	}
-	path := fmt.Sprintf("v1/sessions/%s?beta=true", sessionID)
+	path := requestconfig.FormatPath("v1/sessions/%s?beta=true", sessionID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, nil, &res, opts...)
 	return res, err
 }
@@ -138,13 +153,16 @@ func (r *BetaSessionService) Archive(ctx context.Context, sessionID string, body
 	for _, v := range body.Betas {
 		opts = append(opts, option.WithHeaderAdd("anthropic-beta", fmt.Sprintf("%v", v)))
 	}
+	if !param.IsOmitted(body.WorkspaceID) {
+		opts = append(opts, option.WithHeader("anthropic-workspace-id", fmt.Sprintf("%v", body.WorkspaceID.Value)))
+	}
 	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("anthropic-beta", "managed-agents-2026-04-01")}, opts...)
 	if sessionID == "" {
 		err = errors.New("missing required session_id parameter")
 		return nil, err
 	}
-	path := fmt.Sprintf("v1/sessions/%s/archive?beta=true", sessionID)
+	path := requestconfig.FormatPath("v1/sessions/%s/archive?beta=true", sessionID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, nil, &res, opts...)
 	return res, err
 }
@@ -1150,15 +1168,15 @@ func (u BetaManagedAgentsMultiagentRosterEntryParamsUnion) GetType() *string {
 	return nil
 }
 
-// Evaluation state for a single outcome defined via a define_outcome event.
+// Evaluation state for a single outcome defined via a `define_outcome` event.
 type BetaManagedAgentsOutcomeEvaluationResource struct {
 	// A timestamp in RFC 3339 format
 	CompletedAt time.Time `json:"completed_at" api:"required" format:"date-time"`
 	// What the agent should produce.
 	Description string `json:"description" api:"required"`
-	// Grader's verdict text from the most recent evaluation. For satisfied, explains
-	// why criteria are met; for needs_revision (intermediate), what's missing; for
-	// failed, why unrecoverable.
+	// Grader's verdict text from the most recent evaluation. For `satisfied`, explains
+	// why criteria are met; for `needs_revision` (intermediate), what's missing; for
+	// `failed`, why unrecoverable.
 	Explanation string `json:"explanation" api:"required"`
 	// 0-indexed revision cycle the outcome is currently on.
 	Iteration int64 `json:"iteration" api:"required"`
@@ -1232,7 +1250,7 @@ type BetaManagedAgentsSession struct {
 	CreatedAt     time.Time         `json:"created_at" api:"required" format:"date-time"`
 	EnvironmentID string            `json:"environment_id" api:"required"`
 	Metadata      map[string]string `json:"metadata" api:"required"`
-	// Per-outcome evaluation state. One entry per define_outcome event sent to the
+	// Per-outcome evaluation state. One entry per `define_outcome` event sent to the
 	// session.
 	OutcomeEvaluations []BetaManagedAgentsOutcomeEvaluationResource `json:"outcome_evaluations" api:"required"`
 	Resources          []BetaManagedAgentsSessionResourceUnion      `json:"resources" api:"required"`
@@ -1938,7 +1956,7 @@ const (
 
 // Timing statistics for a session.
 type BetaManagedAgentsSessionStats struct {
-	// Cumulative time in seconds the session spent in running status. Excludes idle
+	// Cumulative time in seconds the session spent in `running` status. Excludes idle
 	// time.
 	ActiveSeconds float64 `json:"active_seconds"`
 	// Elapsed time since session creation in seconds. For terminated sessions, frozen
@@ -2458,7 +2476,8 @@ type BetaSessionNewParams struct {
 	// ID of the `environment` defining the container configuration for this session.
 	EnvironmentID string `json:"environment_id" api:"required"`
 	// Human-readable session title.
-	Title param.Opt[string] `json:"title,omitzero"`
+	Title       param.Opt[string] `json:"title,omitzero"`
+	WorkspaceID param.Opt[string] `header:"anthropic-workspace-id,omitzero" json:"-"`
 	// A hard spend ceiling. The session stops issuing new model requests once the
 	// tracked list cost reaches `max_list_cost`.
 	Budget BetaManagedAgentsBudgetLimitParam `json:"budget,omitzero"`
@@ -2774,6 +2793,7 @@ func init() {
 }
 
 type BetaSessionGetParams struct {
+	WorkspaceID param.Opt[string] `header:"anthropic-workspace-id,omitzero" json:"-"`
 	// Optional header to specify the beta version(s) you want to use.
 	Betas []AnthropicBeta `header:"anthropic-beta,omitzero" json:"-"`
 	paramObj
@@ -2781,7 +2801,8 @@ type BetaSessionGetParams struct {
 
 type BetaSessionUpdateParams struct {
 	// Human-readable session title.
-	Title param.Opt[string] `json:"title,omitzero"`
+	Title       param.Opt[string] `json:"title,omitzero"`
+	WorkspaceID param.Opt[string] `header:"anthropic-workspace-id,omitzero" json:"-"`
 	// Metadata patch. Set a key to a string to upsert it, or to null to delete it.
 	// Omit the field to preserve.
 	Metadata map[string]string `json:"metadata,omitzero"`
@@ -2811,7 +2832,7 @@ func (r *BetaSessionUpdateParams) UnmarshalJSON(data []byte) error {
 type BetaSessionListParams struct {
 	// Filter sessions created with this agent ID.
 	AgentID param.Opt[string] `query:"agent_id,omitzero" json:"-"`
-	// Filter by agent version. Only applies when agent_id is also set.
+	// Filter by agent version. Only applies when `agent_id` is also set.
 	AgentVersion param.Opt[int64] `query:"agent_version,omitzero" json:"-"`
 	// Return sessions created after this time (exclusive).
 	CreatedAtGt param.Opt[time.Time] `query:"created_at[gt],omitzero" format:"date-time" json:"-"`
@@ -2827,12 +2848,13 @@ type BetaSessionListParams struct {
 	IncludeArchived param.Opt[bool] `query:"include_archived,omitzero" json:"-"`
 	// Maximum number of results to return.
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
-	// Filter sessions whose resources contain a memory_store with this memory store
+	// Filter sessions whose resources contain a `memory_store` with this memory store
 	// ID.
 	MemoryStoreID param.Opt[string] `query:"memory_store_id,omitzero" json:"-"`
 	// Opaque pagination cursor from a previous response.
-	Page param.Opt[string] `query:"page,omitzero" json:"-"`
-	// Sort direction for results, ordered by created_at. Defaults to desc (newest
+	Page        param.Opt[string] `query:"page,omitzero" json:"-"`
+	WorkspaceID param.Opt[string] `header:"anthropic-workspace-id,omitzero" json:"-"`
+	// Sort direction for results, ordered by `created_at`. Defaults to `desc` (newest
 	// first).
 	//
 	// Any of "asc", "desc".
@@ -2855,7 +2877,7 @@ func (r BetaSessionListParams) URLQuery() (v url.Values, err error) {
 	})
 }
 
-// Sort direction for results, ordered by created_at. Defaults to desc (newest
+// Sort direction for results, ordered by `created_at`. Defaults to `desc` (newest
 // first).
 type BetaSessionListParamsOrder string
 
@@ -2865,12 +2887,14 @@ const (
 )
 
 type BetaSessionDeleteParams struct {
+	WorkspaceID param.Opt[string] `header:"anthropic-workspace-id,omitzero" json:"-"`
 	// Optional header to specify the beta version(s) you want to use.
 	Betas []AnthropicBeta `header:"anthropic-beta,omitzero" json:"-"`
 	paramObj
 }
 
 type BetaSessionArchiveParams struct {
+	WorkspaceID param.Opt[string] `header:"anthropic-workspace-id,omitzero" json:"-"`
 	// Optional header to specify the beta version(s) you want to use.
 	Betas []AnthropicBeta `header:"anthropic-beta,omitzero" json:"-"`
 	paramObj

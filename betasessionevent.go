@@ -47,13 +47,16 @@ func (r *BetaSessionEventService) List(ctx context.Context, sessionID string, pa
 	for _, v := range params.Betas {
 		opts = append(opts, option.WithHeaderAdd("anthropic-beta", fmt.Sprintf("%v", v)))
 	}
+	if !param.IsOmitted(params.WorkspaceID) {
+		opts = append(opts, option.WithHeader("anthropic-workspace-id", fmt.Sprintf("%v", params.WorkspaceID.Value)))
+	}
 	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("anthropic-beta", "managed-agents-2026-04-01"), option.WithResponseInto(&raw)}, opts...)
 	if sessionID == "" {
 		err = errors.New("missing required session_id parameter")
 		return nil, err
 	}
-	path := fmt.Sprintf("v1/sessions/%s/events?beta=true", sessionID)
+	path := requestconfig.FormatPath("v1/sessions/%s/events?beta=true", sessionID)
 	cfg, err := requestconfig.NewRequestConfig(ctx, http.MethodGet, path, params, &res, opts...)
 	if err != nil {
 		return nil, err
@@ -76,13 +79,16 @@ func (r *BetaSessionEventService) Send(ctx context.Context, sessionID string, pa
 	for _, v := range params.Betas {
 		opts = append(opts, option.WithHeaderAdd("anthropic-beta", fmt.Sprintf("%v", v)))
 	}
+	if !param.IsOmitted(params.WorkspaceID) {
+		opts = append(opts, option.WithHeader("anthropic-workspace-id", fmt.Sprintf("%v", params.WorkspaceID.Value)))
+	}
 	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("anthropic-beta", "managed-agents-2026-04-01")}, opts...)
 	if sessionID == "" {
 		err = errors.New("missing required session_id parameter")
 		return nil, err
 	}
-	path := fmt.Sprintf("v1/sessions/%s/events?beta=true", sessionID)
+	path := requestconfig.FormatPath("v1/sessions/%s/events?beta=true", sessionID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
 	return res, err
 }
@@ -96,13 +102,16 @@ func (r *BetaSessionEventService) StreamEvents(ctx context.Context, sessionID st
 	for _, v := range params.Betas {
 		opts = append(opts, option.WithHeaderAdd("anthropic-beta", fmt.Sprintf("%v", v)))
 	}
+	if !param.IsOmitted(params.WorkspaceID) {
+		opts = append(opts, option.WithHeader("anthropic-workspace-id", fmt.Sprintf("%v", params.WorkspaceID.Value)))
+	}
 	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("anthropic-beta", "managed-agents-2026-04-01")}, opts...)
 	if sessionID == "" {
 		err = errors.New("missing required session_id parameter")
 		return ssestream.NewStream[BetaManagedAgentsStreamSessionEventsUnion](nil, err)
 	}
-	path := fmt.Sprintf("v1/sessions/%s/events/stream?beta=true", sessionID)
+	path := requestconfig.FormatPath("v1/sessions/%s/events/stream?beta=true", sessionID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, params, &raw, opts...)
 	return ssestream.NewStream[BetaManagedAgentsStreamSessionEventsUnion](ssestream.NewDecoder(raw), err)
 }
@@ -7573,10 +7582,11 @@ type BetaSessionEventListParams struct {
 	CreatedAtLte param.Opt[time.Time] `query:"created_at[lte],omitzero" format:"date-time" json:"-"`
 	// Query parameter for limit
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
-	// Opaque pagination cursor from a previous response's next_page.
-	Page param.Opt[string] `query:"page,omitzero" json:"-"`
+	// Opaque pagination cursor from a previous response's `next_page`.
+	Page        param.Opt[string] `query:"page,omitzero" json:"-"`
+	WorkspaceID param.Opt[string] `header:"anthropic-workspace-id,omitzero" json:"-"`
 	// Sort direction for results, ordered by the event's `processed_at`. Defaults to
-	// asc (chronological).
+	// `asc` (chronological).
 	//
 	// Any of "asc", "desc".
 	Order BetaSessionEventListParamsOrder `query:"order,omitzero" json:"-"`
@@ -7598,7 +7608,7 @@ func (r BetaSessionEventListParams) URLQuery() (v url.Values, err error) {
 }
 
 // Sort direction for results, ordered by the event's `processed_at`. Defaults to
-// asc (chronological).
+// `asc` (chronological).
 type BetaSessionEventListParamsOrder string
 
 const (
@@ -7608,7 +7618,8 @@ const (
 
 type BetaSessionEventSendParams struct {
 	// Events to send to the `session`.
-	Events []BetaManagedAgentsEventParamsUnion `json:"events,omitzero" api:"required"`
+	Events      []BetaManagedAgentsEventParamsUnion `json:"events,omitzero" api:"required"`
+	WorkspaceID param.Opt[string]                   `header:"anthropic-workspace-id,omitzero" json:"-"`
 	// Optional header to specify the beta version(s) you want to use.
 	Betas []AnthropicBeta `header:"anthropic-beta,omitzero" json:"-"`
 	paramObj
@@ -7623,6 +7634,7 @@ func (r *BetaSessionEventSendParams) UnmarshalJSON(data []byte) error {
 }
 
 type BetaSessionEventStreamParams struct {
+	WorkspaceID param.Opt[string] `header:"anthropic-workspace-id,omitzero" json:"-"`
 	// When set, this connection also receives streaming deltas (`event_start`,
 	// `event_delta`) while an event is being produced, before the event itself
 	// arrives. Deltas are best-effort; when the final event is produced it carries the

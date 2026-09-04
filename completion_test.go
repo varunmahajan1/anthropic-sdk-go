@@ -27,7 +27,7 @@ func TestCompletionNewWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Completions.New(context.TODO(), anthropic.CompletionNewParams{
 		MaxTokensToSample: 256,
-		Model:             anthropic.ModelClaudeSonnet5,
+		Model:             anthropic.ModelClaudeFable5_1,
 		Prompt:            "\n\nHuman: Hello, world!\n\nAssistant:",
 		Metadata: anthropic.MetadataParam{
 			UserID: anthropic.String("13803d75-b4b5-4c3e-b2a2-6f21399b021b"),
@@ -37,6 +37,7 @@ func TestCompletionNewWithOptionalParams(t *testing.T) {
 		TopK:          anthropic.Int(5),
 		TopP:          anthropic.Float(0.7),
 		Betas:         []anthropic.AnthropicBeta{anthropic.AnthropicBetaMessageBatches2024_09_24},
+		WorkspaceID:   anthropic.String("wrkspc_011CZkZaBF1tNoB5wlCeusgy"),
 	})
 	if err != nil {
 		var apierr *anthropic.Error

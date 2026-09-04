@@ -57,6 +57,9 @@ func (r *BetaMessageBatchService) New(ctx context.Context, params BetaMessageBat
 	if !param.IsOmitted(params.UserProfileID) {
 		opts = append(opts, option.WithHeader("anthropic-user-profile-id", fmt.Sprintf("%v", params.UserProfileID.Value)))
 	}
+	if !param.IsOmitted(params.WorkspaceID) {
+		opts = append(opts, option.WithHeader("anthropic-workspace-id", fmt.Sprintf("%v", params.WorkspaceID.Value)))
+	}
 	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("anthropic-beta", "message-batches-2024-09-24")}, opts...)
 	path := "v1/messages/batches?beta=true"
@@ -74,13 +77,16 @@ func (r *BetaMessageBatchService) Get(ctx context.Context, messageBatchID string
 	for _, v := range query.Betas {
 		opts = append(opts, option.WithHeaderAdd("anthropic-beta", fmt.Sprintf("%v", v)))
 	}
+	if !param.IsOmitted(query.WorkspaceID) {
+		opts = append(opts, option.WithHeader("anthropic-workspace-id", fmt.Sprintf("%v", query.WorkspaceID.Value)))
+	}
 	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("anthropic-beta", "message-batches-2024-09-24")}, opts...)
 	if messageBatchID == "" {
 		err = errors.New("missing required message_batch_id parameter")
 		return nil, err
 	}
-	path := fmt.Sprintf("v1/messages/batches/%s?beta=true", messageBatchID)
+	path := requestconfig.FormatPath("v1/messages/batches/%s?beta=true", messageBatchID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
 	return res, err
 }
@@ -94,6 +100,9 @@ func (r *BetaMessageBatchService) List(ctx context.Context, params BetaMessageBa
 	var raw *http.Response
 	for _, v := range params.Betas {
 		opts = append(opts, option.WithHeaderAdd("anthropic-beta", fmt.Sprintf("%v", v)))
+	}
+	if !param.IsOmitted(params.WorkspaceID) {
+		opts = append(opts, option.WithHeader("anthropic-workspace-id", fmt.Sprintf("%v", params.WorkspaceID.Value)))
 	}
 	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("anthropic-beta", "message-batches-2024-09-24"), option.WithResponseInto(&raw)}, opts...)
@@ -130,13 +139,16 @@ func (r *BetaMessageBatchService) Delete(ctx context.Context, messageBatchID str
 	for _, v := range body.Betas {
 		opts = append(opts, option.WithHeaderAdd("anthropic-beta", fmt.Sprintf("%v", v)))
 	}
+	if !param.IsOmitted(body.WorkspaceID) {
+		opts = append(opts, option.WithHeader("anthropic-workspace-id", fmt.Sprintf("%v", body.WorkspaceID.Value)))
+	}
 	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("anthropic-beta", "message-batches-2024-09-24")}, opts...)
 	if messageBatchID == "" {
 		err = errors.New("missing required message_batch_id parameter")
 		return nil, err
 	}
-	path := fmt.Sprintf("v1/messages/batches/%s?beta=true", messageBatchID)
+	path := requestconfig.FormatPath("v1/messages/batches/%s?beta=true", messageBatchID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, nil, &res, opts...)
 	return res, err
 }
@@ -157,13 +169,16 @@ func (r *BetaMessageBatchService) Cancel(ctx context.Context, messageBatchID str
 	for _, v := range body.Betas {
 		opts = append(opts, option.WithHeaderAdd("anthropic-beta", fmt.Sprintf("%v", v)))
 	}
+	if !param.IsOmitted(body.WorkspaceID) {
+		opts = append(opts, option.WithHeader("anthropic-workspace-id", fmt.Sprintf("%v", body.WorkspaceID.Value)))
+	}
 	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("anthropic-beta", "message-batches-2024-09-24")}, opts...)
 	if messageBatchID == "" {
 		err = errors.New("missing required message_batch_id parameter")
 		return nil, err
 	}
-	path := fmt.Sprintf("v1/messages/batches/%s/cancel?beta=true", messageBatchID)
+	path := requestconfig.FormatPath("v1/messages/batches/%s/cancel?beta=true", messageBatchID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, nil, &res, opts...)
 	return res, err
 }
@@ -184,13 +199,16 @@ func (r *BetaMessageBatchService) ResultsStreaming(ctx context.Context, messageB
 	for _, v := range query.Betas {
 		opts = append(opts, option.WithHeaderAdd("anthropic-beta", fmt.Sprintf("%v", v)))
 	}
+	if !param.IsOmitted(query.WorkspaceID) {
+		opts = append(opts, option.WithHeader("anthropic-workspace-id", fmt.Sprintf("%v", query.WorkspaceID.Value)))
+	}
 	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("anthropic-beta", "message-batches-2024-09-24"), option.WithHeader("Accept", "application/x-jsonl")}, opts...)
 	if messageBatchID == "" {
 		err = errors.New("missing required message_batch_id parameter")
 		return jsonl.NewStream[BetaMessageBatchIndividualResponse](nil, err)
 	}
-	path := fmt.Sprintf("v1/messages/batches/%s/results?beta=true", messageBatchID)
+	path := requestconfig.FormatPath("v1/messages/batches/%s/results?beta=true", messageBatchID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &raw, opts...)
 	return jsonl.NewStream[BetaMessageBatchIndividualResponse](raw, err)
 }
@@ -520,6 +538,7 @@ type BetaMessageBatchNewParams struct {
 	// beta header. Applies to every request in the batch; an individual request whose
 	// `user_profile_id` body field conflicts with this header is errored.
 	UserProfileID param.Opt[string] `header:"anthropic-user-profile-id,omitzero" json:"-"`
+	WorkspaceID   param.Opt[string] `header:"anthropic-workspace-id,omitzero" json:"-"`
 	// Optional header to specify the beta version(s) you want to use.
 	Betas []AnthropicBeta `header:"anthropic-beta,omitzero" json:"-"`
 	paramObj
@@ -948,6 +967,7 @@ func (u *BetaMessageBatchNewParamsRequestParamsFallbackCreditTokenUnion) asAny()
 }
 
 type BetaMessageBatchGetParams struct {
+	WorkspaceID param.Opt[string] `header:"anthropic-workspace-id,omitzero" json:"-"`
 	// Optional header to specify the beta version(s) you want to use.
 	Betas []AnthropicBeta `header:"anthropic-beta,omitzero" json:"-"`
 	paramObj
@@ -963,7 +983,8 @@ type BetaMessageBatchListParams struct {
 	// Number of items to return per page.
 	//
 	// Defaults to `20`. Ranges from `1` to `1000`.
-	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
+	Limit       param.Opt[int64]  `query:"limit,omitzero" json:"-"`
+	WorkspaceID param.Opt[string] `header:"anthropic-workspace-id,omitzero" json:"-"`
 	// Optional header to specify the beta version(s) you want to use.
 	Betas []AnthropicBeta `header:"anthropic-beta,omitzero" json:"-"`
 	paramObj
@@ -979,18 +1000,21 @@ func (r BetaMessageBatchListParams) URLQuery() (v url.Values, err error) {
 }
 
 type BetaMessageBatchDeleteParams struct {
+	WorkspaceID param.Opt[string] `header:"anthropic-workspace-id,omitzero" json:"-"`
 	// Optional header to specify the beta version(s) you want to use.
 	Betas []AnthropicBeta `header:"anthropic-beta,omitzero" json:"-"`
 	paramObj
 }
 
 type BetaMessageBatchCancelParams struct {
+	WorkspaceID param.Opt[string] `header:"anthropic-workspace-id,omitzero" json:"-"`
 	// Optional header to specify the beta version(s) you want to use.
 	Betas []AnthropicBeta `header:"anthropic-beta,omitzero" json:"-"`
 	paramObj
 }
 
 type BetaMessageBatchResultsParams struct {
+	WorkspaceID param.Opt[string] `header:"anthropic-workspace-id,omitzero" json:"-"`
 	// Optional header to specify the beta version(s) you want to use.
 	Betas []AnthropicBeta `header:"anthropic-beta,omitzero" json:"-"`
 	paramObj

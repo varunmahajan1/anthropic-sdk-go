@@ -84,11 +84,13 @@ type Compact20260112 string                         // Always "compact_20260112"
 type Compaction string                              // Always "compaction"
 type CompactionDelta string                         // Always "compaction_delta"
 type Completion string                              // Always "completion"
+type ComplianceSettings string                      // Always "compliance_settings"
 type Computer string                                // Always "computer"
 type Computer20241022 string                        // Always "computer_20241022"
 type Computer20250124 string                        // Always "computer_20250124"
 type Computer20251124 string                        // Always "computer_20251124"
 type ComputerToolset20260801 string                 // Always "computer_toolset_20260801"
+type ConflictError string                           // Always "conflict_error"
 type ContainerUpload string                         // Always "container_upload"
 type Content string                                 // Always "content"
 type ContentBlockDelta string                       // Always "content_block_delta"
@@ -237,6 +239,7 @@ type TextEditorCodeExecutionViewResult string       // Always "text_editor_code_
 type TextPlain string                               // Always "text/plain"
 type Thinking string                                // Always "thinking"
 type ThinkingDelta string                           // Always "thinking_delta"
+type ThinkingDropped string                         // Always "thinking_dropped"
 type ThinkingTurns string                           // Always "thinking_turns"
 type TimeoutError string                            // Always "timeout_error"
 type Tokens string                                  // Always "tokens"
@@ -358,17 +361,19 @@ func (c CodeExecutionToolResult) Default() CodeExecutionToolResult {
 func (c CodeExecutionToolResultError) Default() CodeExecutionToolResultError {
 	return "code_execution_tool_result_error"
 }
-func (c Compact20260112) Default() Compact20260112   { return "compact_20260112" }
-func (c Compaction) Default() Compaction             { return "compaction" }
-func (c CompactionDelta) Default() CompactionDelta   { return "compaction_delta" }
-func (c Completion) Default() Completion             { return "completion" }
-func (c Computer) Default() Computer                 { return "computer" }
-func (c Computer20241022) Default() Computer20241022 { return "computer_20241022" }
-func (c Computer20250124) Default() Computer20250124 { return "computer_20250124" }
-func (c Computer20251124) Default() Computer20251124 { return "computer_20251124" }
+func (c Compact20260112) Default() Compact20260112       { return "compact_20260112" }
+func (c Compaction) Default() Compaction                 { return "compaction" }
+func (c CompactionDelta) Default() CompactionDelta       { return "compaction_delta" }
+func (c Completion) Default() Completion                 { return "completion" }
+func (c ComplianceSettings) Default() ComplianceSettings { return "compliance_settings" }
+func (c Computer) Default() Computer                     { return "computer" }
+func (c Computer20241022) Default() Computer20241022     { return "computer_20241022" }
+func (c Computer20250124) Default() Computer20250124     { return "computer_20250124" }
+func (c Computer20251124) Default() Computer20251124     { return "computer_20251124" }
 func (c ComputerToolset20260801) Default() ComputerToolset20260801 {
 	return "computer_toolset_20260801"
 }
+func (c ConflictError) Default() ConflictError                   { return "conflict_error" }
 func (c ContainerUpload) Default() ContainerUpload               { return "container_upload" }
 func (c Content) Default() Content                               { return "content" }
 func (c ContentBlockDelta) Default() ContentBlockDelta           { return "content_block_delta" }
@@ -551,6 +556,7 @@ func (c TextEditorCodeExecutionViewResult) Default() TextEditorCodeExecutionView
 func (c TextPlain) Default() TextPlain                       { return "text/plain" }
 func (c Thinking) Default() Thinking                         { return "thinking" }
 func (c ThinkingDelta) Default() ThinkingDelta               { return "thinking_delta" }
+func (c ThinkingDropped) Default() ThinkingDropped           { return "thinking_dropped" }
 func (c ThinkingTurns) Default() ThinkingTurns               { return "thinking_turns" }
 func (c TimeoutError) Default() TimeoutError                 { return "timeout_error" }
 func (c Tokens) Default() Tokens                             { return "tokens" }
@@ -678,11 +684,13 @@ func (c Compact20260112) MarshalJSON() ([]byte, error)                      { re
 func (c Compaction) MarshalJSON() ([]byte, error)                           { return marshalString(c) }
 func (c CompactionDelta) MarshalJSON() ([]byte, error)                      { return marshalString(c) }
 func (c Completion) MarshalJSON() ([]byte, error)                           { return marshalString(c) }
+func (c ComplianceSettings) MarshalJSON() ([]byte, error)                   { return marshalString(c) }
 func (c Computer) MarshalJSON() ([]byte, error)                             { return marshalString(c) }
 func (c Computer20241022) MarshalJSON() ([]byte, error)                     { return marshalString(c) }
 func (c Computer20250124) MarshalJSON() ([]byte, error)                     { return marshalString(c) }
 func (c Computer20251124) MarshalJSON() ([]byte, error)                     { return marshalString(c) }
 func (c ComputerToolset20260801) MarshalJSON() ([]byte, error)              { return marshalString(c) }
+func (c ConflictError) MarshalJSON() ([]byte, error)                        { return marshalString(c) }
 func (c ContainerUpload) MarshalJSON() ([]byte, error)                      { return marshalString(c) }
 func (c Content) MarshalJSON() ([]byte, error)                              { return marshalString(c) }
 func (c ContentBlockDelta) MarshalJSON() ([]byte, error)                    { return marshalString(c) }
@@ -835,6 +843,7 @@ func (c TextEditorCodeExecutionViewResult) MarshalJSON() ([]byte, error) { retur
 func (c TextPlain) MarshalJSON() ([]byte, error)                         { return marshalString(c) }
 func (c Thinking) MarshalJSON() ([]byte, error)                          { return marshalString(c) }
 func (c ThinkingDelta) MarshalJSON() ([]byte, error)                     { return marshalString(c) }
+func (c ThinkingDropped) MarshalJSON() ([]byte, error)                   { return marshalString(c) }
 func (c ThinkingTurns) MarshalJSON() ([]byte, error)                     { return marshalString(c) }
 func (c TimeoutError) MarshalJSON() ([]byte, error)                      { return marshalString(c) }
 func (c Tokens) MarshalJSON() ([]byte, error)                            { return marshalString(c) }

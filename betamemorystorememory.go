@@ -45,13 +45,16 @@ func (r *BetaMemoryStoreMemoryService) New(ctx context.Context, memoryStoreID st
 	for _, v := range params.Betas {
 		opts = append(opts, option.WithHeaderAdd("anthropic-beta", fmt.Sprintf("%v", v)))
 	}
+	if !param.IsOmitted(params.WorkspaceID) {
+		opts = append(opts, option.WithHeader("anthropic-workspace-id", fmt.Sprintf("%v", params.WorkspaceID.Value)))
+	}
 	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("anthropic-beta", "agent-memory-2026-07-22")}, opts...)
 	if memoryStoreID == "" {
 		err = errors.New("missing required memory_store_id parameter")
 		return nil, err
 	}
-	path := fmt.Sprintf("v1/memory_stores/%s/memories?beta=true", memoryStoreID)
+	path := requestconfig.FormatPath("v1/memory_stores/%s/memories?beta=true", memoryStoreID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
 	return res, err
 }
@@ -61,6 +64,9 @@ func (r *BetaMemoryStoreMemoryService) Get(ctx context.Context, memoryID string,
 	for _, v := range params.Betas {
 		opts = append(opts, option.WithHeaderAdd("anthropic-beta", fmt.Sprintf("%v", v)))
 	}
+	if !param.IsOmitted(params.WorkspaceID) {
+		opts = append(opts, option.WithHeader("anthropic-workspace-id", fmt.Sprintf("%v", params.WorkspaceID.Value)))
+	}
 	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("anthropic-beta", "agent-memory-2026-07-22")}, opts...)
 	if params.MemoryStoreID == "" {
@@ -71,7 +77,7 @@ func (r *BetaMemoryStoreMemoryService) Get(ctx context.Context, memoryID string,
 		err = errors.New("missing required memory_id parameter")
 		return nil, err
 	}
-	path := fmt.Sprintf("v1/memory_stores/%s/memories/%s?beta=true", params.MemoryStoreID, memoryID)
+	path := requestconfig.FormatPath("v1/memory_stores/%s/memories/%s?beta=true", params.MemoryStoreID, memoryID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, params, &res, opts...)
 	return res, err
 }
@@ -81,6 +87,9 @@ func (r *BetaMemoryStoreMemoryService) Update(ctx context.Context, memoryID stri
 	for _, v := range params.Betas {
 		opts = append(opts, option.WithHeaderAdd("anthropic-beta", fmt.Sprintf("%v", v)))
 	}
+	if !param.IsOmitted(params.WorkspaceID) {
+		opts = append(opts, option.WithHeader("anthropic-workspace-id", fmt.Sprintf("%v", params.WorkspaceID.Value)))
+	}
 	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("anthropic-beta", "agent-memory-2026-07-22")}, opts...)
 	if params.MemoryStoreID == "" {
@@ -91,7 +100,7 @@ func (r *BetaMemoryStoreMemoryService) Update(ctx context.Context, memoryID stri
 		err = errors.New("missing required memory_id parameter")
 		return nil, err
 	}
-	path := fmt.Sprintf("v1/memory_stores/%s/memories/%s?beta=true", params.MemoryStoreID, memoryID)
+	path := requestconfig.FormatPath("v1/memory_stores/%s/memories/%s?beta=true", params.MemoryStoreID, memoryID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
 	return res, err
 }
@@ -102,13 +111,16 @@ func (r *BetaMemoryStoreMemoryService) List(ctx context.Context, memoryStoreID s
 	for _, v := range params.Betas {
 		opts = append(opts, option.WithHeaderAdd("anthropic-beta", fmt.Sprintf("%v", v)))
 	}
+	if !param.IsOmitted(params.WorkspaceID) {
+		opts = append(opts, option.WithHeader("anthropic-workspace-id", fmt.Sprintf("%v", params.WorkspaceID.Value)))
+	}
 	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("anthropic-beta", "agent-memory-2026-07-22"), option.WithResponseInto(&raw)}, opts...)
 	if memoryStoreID == "" {
 		err = errors.New("missing required memory_store_id parameter")
 		return nil, err
 	}
-	path := fmt.Sprintf("v1/memory_stores/%s/memories?beta=true", memoryStoreID)
+	path := requestconfig.FormatPath("v1/memory_stores/%s/memories?beta=true", memoryStoreID)
 	cfg, err := requestconfig.NewRequestConfig(ctx, http.MethodGet, path, params, &res, opts...)
 	if err != nil {
 		return nil, err
@@ -131,6 +143,9 @@ func (r *BetaMemoryStoreMemoryService) Delete(ctx context.Context, memoryID stri
 	for _, v := range params.Betas {
 		opts = append(opts, option.WithHeaderAdd("anthropic-beta", fmt.Sprintf("%v", v)))
 	}
+	if !param.IsOmitted(params.WorkspaceID) {
+		opts = append(opts, option.WithHeader("anthropic-workspace-id", fmt.Sprintf("%v", params.WorkspaceID.Value)))
+	}
 	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("anthropic-beta", "agent-memory-2026-07-22")}, opts...)
 	if params.MemoryStoreID == "" {
@@ -141,7 +156,7 @@ func (r *BetaMemoryStoreMemoryService) Delete(ctx context.Context, memoryID stri
 		err = errors.New("missing required memory_id parameter")
 		return nil, err
 	}
-	path := fmt.Sprintf("v1/memory_stores/%s/memories/%s?beta=true", params.MemoryStoreID, memoryID)
+	path := requestconfig.FormatPath("v1/memory_stores/%s/memories/%s?beta=true", params.MemoryStoreID, memoryID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, params, &res, opts...)
 	return res, err
 }
@@ -419,8 +434,10 @@ type BetaMemoryStoreMemoryNewParams struct {
 	// Hierarchical path for the new memory, e.g. `/projects/foo/notes.md`. Must start
 	// with `/`, contain at least one non-empty segment, and be at most 1,024 bytes.
 	// Must not contain empty segments, `.` or `..` segments, control or format
-	// characters, and must be NFC-normalized. Paths are case-sensitive.
-	Path string `json:"path" api:"required"`
+	// characters, or the Unicode line and paragraph separators (U+2028, U+2029), and
+	// must be NFC-normalized. Paths are case-sensitive.
+	Path        string            `json:"path" api:"required"`
+	WorkspaceID param.Opt[string] `header:"anthropic-workspace-id,omitzero" json:"-"`
 	// Query parameter for view
 	//
 	// Any of "basic", "full".
@@ -448,7 +465,8 @@ func (r BetaMemoryStoreMemoryNewParams) URLQuery() (v url.Values, err error) {
 }
 
 type BetaMemoryStoreMemoryGetParams struct {
-	MemoryStoreID string `path:"memory_store_id" api:"required" json:"-"`
+	MemoryStoreID string            `path:"memory_store_id" api:"required" json:"-"`
+	WorkspaceID   param.Opt[string] `header:"anthropic-workspace-id,omitzero" json:"-"`
 	// Query parameter for view
 	//
 	// Any of "basic", "full".
@@ -474,10 +492,12 @@ type BetaMemoryStoreMemoryUpdateParams struct {
 	Content param.Opt[string] `json:"content,omitzero"`
 	// New path for the memory (a rename). Must start with `/`, contain at least one
 	// non-empty segment, and be at most 1,024 bytes. Must not contain empty segments,
-	// `.` or `..` segments, control or format characters, and must be NFC-normalized.
-	// Paths are case-sensitive. The memory's `id` is preserved across renames. Omit to
-	// leave the path unchanged.
-	Path param.Opt[string] `json:"path,omitzero"`
+	// `.` or `..` segments, control or format characters, or the Unicode line and
+	// paragraph separators (U+2028, U+2029), and must be NFC-normalized. Paths are
+	// case-sensitive. The memory's `id` is preserved across renames. Omit to leave the
+	// path unchanged.
+	Path        param.Opt[string] `json:"path,omitzero"`
+	WorkspaceID param.Opt[string] `header:"anthropic-workspace-id,omitzero" json:"-"`
 	// Query parameter for view
 	//
 	// Any of "basic", "full".
@@ -526,7 +546,8 @@ type BetaMemoryStoreMemoryListParams struct {
 	// Optional path prefix filter. Must end with `/` (segment-aligned), e.g.,
 	// `/notes/`. This value appears in request URLs. Do not include secrets or
 	// personally identifiable information.
-	PathPrefix param.Opt[string] `query:"path_prefix,omitzero" json:"-"`
+	PathPrefix  param.Opt[string] `query:"path_prefix,omitzero" json:"-"`
+	WorkspaceID param.Opt[string] `header:"anthropic-workspace-id,omitzero" json:"-"`
 	// Which projection of each `memory` to return. Defaults to `basic` (content
 	// omitted). `full` populates `content` on each item and caps `limit` at 20; use
 	// this as the bulk-read path for export and sync.
@@ -551,6 +572,7 @@ type BetaMemoryStoreMemoryDeleteParams struct {
 	MemoryStoreID string `path:"memory_store_id" api:"required" json:"-"`
 	// Query parameter for expected_content_sha256
 	ExpectedContentSha256 param.Opt[string] `query:"expected_content_sha256,omitzero" json:"-"`
+	WorkspaceID           param.Opt[string] `header:"anthropic-workspace-id,omitzero" json:"-"`
 	// Optional header to specify the beta version(s) you want to use.
 	Betas []AnthropicBeta `header:"anthropic-beta,omitzero" json:"-"`
 	paramObj

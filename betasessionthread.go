@@ -47,6 +47,9 @@ func (r *BetaSessionThreadService) Get(ctx context.Context, threadID string, par
 	for _, v := range params.Betas {
 		opts = append(opts, option.WithHeaderAdd("anthropic-beta", fmt.Sprintf("%v", v)))
 	}
+	if !param.IsOmitted(params.WorkspaceID) {
+		opts = append(opts, option.WithHeader("anthropic-workspace-id", fmt.Sprintf("%v", params.WorkspaceID.Value)))
+	}
 	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("anthropic-beta", "managed-agents-2026-04-01")}, opts...)
 	if params.SessionID == "" {
@@ -57,7 +60,7 @@ func (r *BetaSessionThreadService) Get(ctx context.Context, threadID string, par
 		err = errors.New("missing required thread_id parameter")
 		return nil, err
 	}
-	path := fmt.Sprintf("v1/sessions/%s/threads/%s?beta=true", params.SessionID, threadID)
+	path := requestconfig.FormatPath("v1/sessions/%s/threads/%s?beta=true", params.SessionID, threadID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
 	return res, err
 }
@@ -68,13 +71,16 @@ func (r *BetaSessionThreadService) List(ctx context.Context, sessionID string, p
 	for _, v := range params.Betas {
 		opts = append(opts, option.WithHeaderAdd("anthropic-beta", fmt.Sprintf("%v", v)))
 	}
+	if !param.IsOmitted(params.WorkspaceID) {
+		opts = append(opts, option.WithHeader("anthropic-workspace-id", fmt.Sprintf("%v", params.WorkspaceID.Value)))
+	}
 	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("anthropic-beta", "managed-agents-2026-04-01"), option.WithResponseInto(&raw)}, opts...)
 	if sessionID == "" {
 		err = errors.New("missing required session_id parameter")
 		return nil, err
 	}
-	path := fmt.Sprintf("v1/sessions/%s/threads?beta=true", sessionID)
+	path := requestconfig.FormatPath("v1/sessions/%s/threads?beta=true", sessionID)
 	cfg, err := requestconfig.NewRequestConfig(ctx, http.MethodGet, path, params, &res, opts...)
 	if err != nil {
 		return nil, err
@@ -97,6 +103,9 @@ func (r *BetaSessionThreadService) Archive(ctx context.Context, threadID string,
 	for _, v := range params.Betas {
 		opts = append(opts, option.WithHeaderAdd("anthropic-beta", fmt.Sprintf("%v", v)))
 	}
+	if !param.IsOmitted(params.WorkspaceID) {
+		opts = append(opts, option.WithHeader("anthropic-workspace-id", fmt.Sprintf("%v", params.WorkspaceID.Value)))
+	}
 	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("anthropic-beta", "managed-agents-2026-04-01")}, opts...)
 	if params.SessionID == "" {
@@ -107,7 +116,7 @@ func (r *BetaSessionThreadService) Archive(ctx context.Context, threadID string,
 		err = errors.New("missing required thread_id parameter")
 		return nil, err
 	}
-	path := fmt.Sprintf("v1/sessions/%s/threads/%s/archive?beta=true", params.SessionID, threadID)
+	path := requestconfig.FormatPath("v1/sessions/%s/threads/%s/archive?beta=true", params.SessionID, threadID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, nil, &res, opts...)
 	return res, err
 }
@@ -1056,7 +1065,8 @@ func (r *BetaManagedAgentsStreamSessionThreadEventsUnionUsage) UnmarshalJSON(dat
 }
 
 type BetaSessionThreadGetParams struct {
-	SessionID string `path:"session_id" api:"required" json:"-"`
+	SessionID   string            `path:"session_id" api:"required" json:"-"`
+	WorkspaceID param.Opt[string] `header:"anthropic-workspace-id,omitzero" json:"-"`
 	// Optional header to specify the beta version(s) you want to use.
 	Betas []AnthropicBeta `header:"anthropic-beta,omitzero" json:"-"`
 	paramObj
@@ -1065,8 +1075,9 @@ type BetaSessionThreadGetParams struct {
 type BetaSessionThreadListParams struct {
 	// Maximum results per page. Defaults to 1000.
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
-	// Opaque pagination cursor from a previous response's next_page. Forward-only.
-	Page param.Opt[string] `query:"page,omitzero" json:"-"`
+	// Opaque pagination cursor from a previous response's `next_page`. Forward-only.
+	Page        param.Opt[string] `query:"page,omitzero" json:"-"`
+	WorkspaceID param.Opt[string] `header:"anthropic-workspace-id,omitzero" json:"-"`
 	// Optional header to specify the beta version(s) you want to use.
 	Betas []AnthropicBeta `header:"anthropic-beta,omitzero" json:"-"`
 	paramObj
@@ -1082,7 +1093,8 @@ func (r BetaSessionThreadListParams) URLQuery() (v url.Values, err error) {
 }
 
 type BetaSessionThreadArchiveParams struct {
-	SessionID string `path:"session_id" api:"required" json:"-"`
+	SessionID   string            `path:"session_id" api:"required" json:"-"`
+	WorkspaceID param.Opt[string] `header:"anthropic-workspace-id,omitzero" json:"-"`
 	// Optional header to specify the beta version(s) you want to use.
 	Betas []AnthropicBeta `header:"anthropic-beta,omitzero" json:"-"`
 	paramObj
